@@ -1,5 +1,6 @@
 package com.yahoo.anandvas.listify;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 //        items.add("1st");
 //        items.add("2nd");
 
-        setupListViewListener();
+        setupListViewListeners();
     }
 
     public void addClicked(View v) {
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         newItem.setText("");
     }
 
-    private void setupListViewListener() {
+    private void setupListViewListeners() {
         listView.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
 
@@ -59,6 +60,33 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        listView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter, View item, int pos, long id) {
+                        Intent editIntent = new Intent(MainActivity.this, EditItemActivity.class);
+                        editIntent.putExtra("item", items.get(pos));
+                        editIntent.putExtra("position", pos);
+                        startActivityForResult(editIntent,101);
+                    }
+                }
+        );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 101 && data != null) {
+            int pos = data.getIntExtra("position", items.size());
+            String value = data.getStringExtra("item");
+
+            items.set(pos, value); //--update item value with edited value
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
+
     }
 
     private void readItems() {
